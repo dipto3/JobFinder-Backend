@@ -93,6 +93,7 @@ class AuthController extends Controller
                 'email'        => $user->email,
                 'role_id'      => $user->role_id,
                 'candidate_id' => $candidate->id,
+                'image'        => $candidate->image ? asset('storage/' . $candidate->image) : null,
             ],
         ], 200);
     }

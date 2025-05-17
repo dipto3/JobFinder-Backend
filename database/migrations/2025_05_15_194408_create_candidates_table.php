@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->text('address')->nullable();
+            $table->string('designation')->nullable();
             $table->integer('phone')->nullable();
             $table->string('image')->nullable();
             $table->string('cv')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->string('twitter')->nullable();
             $table->string('linkedin')->nullable();
             $table->string('personal_website')->nullable();
+            $table->text('about')->nullable();
             $table->timestamps();
         });
     }

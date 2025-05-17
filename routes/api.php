@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CandidateController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,3 +22,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('candidate/register', [AuthController::class, 'register']);
 Route::post('/candidate/login', [AuthController::class, 'login']);
+Route::get('/categories', [CategoryController::class, 'categories']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('candidate/profile', [CandidateController::class, 'profile']);
+    Route::apiResource('candidate', CandidateController::class);
+});
