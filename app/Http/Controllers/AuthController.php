@@ -60,7 +60,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Check user exists
+      
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
@@ -70,7 +70,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Check candidate
+       
         $candidate = Candidate::where('user_id', $user->id)->first();
 
         if (! $candidate) {
