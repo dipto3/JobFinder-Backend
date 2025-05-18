@@ -29,7 +29,6 @@ class AuthController extends Controller
                 'role_id'  => $candidateRole->id,
             ]);
 
-            // Step 2: Create candidate
             Candidate::create([
                 'user_id' => $user->id,
             ]);
@@ -80,7 +79,6 @@ class AuthController extends Controller
             ], 404);
         }
 
-        // Create token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
