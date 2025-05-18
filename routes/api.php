@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\JobCategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +24,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('candidate/register', [AuthController::class, 'register']);
 Route::post('/candidate/login', [AuthController::class, 'login']);
 Route::get('/categories', [CategoryController::class, 'categories']);
+Route::get('/job-categories', [JobCategoryController::class, 'jobCategories']);
 
+Route::post('company/register', [AuthController::class, 'companyRegister']);
+Route::post('/company/login', [AuthController::class, 'companyLogin']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('candidate/profile', [CandidateController::class, 'profile']);
     Route::apiResource('candidate', CandidateController::class);
