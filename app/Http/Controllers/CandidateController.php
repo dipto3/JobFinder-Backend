@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CandidateResource;
 use App\Models\Candidate;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,7 +18,7 @@ class CandidateController extends Controller
         $candidate = Candidate::where('user_id', auth()->id())->first();
         return CandidateResource::make($candidate);
     }
-    
+
     public function index()
     {
         //
@@ -42,9 +43,9 @@ class CandidateController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Candidate $candidate)
     {
-        //
+        return CandidateResource::make($candidate);
     }
 
     /**
