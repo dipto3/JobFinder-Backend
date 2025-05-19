@@ -28,7 +28,13 @@ Route::get('/job-categories', [JobCategoryController::class, 'jobCategories']);
 
 Route::post('company/register', [AuthController::class, 'companyRegister']);
 Route::post('/company/login', [AuthController::class, 'companyLogin']);
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+Route::get('verify-company/{user}', [AuthController::class, 'verify'])->name('company.verify');
+Route::get('verification-success', [AuthController::class, 'verificationSuccess'])->name('verification.success');
+Route::get('verification-already-done', [AuthController::class, 'verificationAlreadyDone'])->name('verification.already.done');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('candidate/profile', [CandidateController::class, 'profile']);
     Route::apiResource('candidate', CandidateController::class);
+    Route::apiResource('category', CategoryController::class);
 });

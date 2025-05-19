@@ -1,18 +1,37 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Events\WelcomeMail;
+use App\Events\WelcomeMailEvent;
 use App\Http\Requests\RegisterCompanyRequest;
+use App\Jobs\EmailConfirmationJob;
 use App\Models\Candidate;
 use App\Models\Company;
 use App\Models\Package;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function verify(User $user)
+    {
+        if (! $user->email_verified_at) {
+            $user->update([
+                'email_verified_at' => Carbon::now(),
+            ]);
+            $user->company()->update([
+                'status' => 1,
+            ]);
+
+            return redirect()->route('verification.success');
+        }
+
+        return redirect()->route('verification.already.done');
+    }
     public function register(Request $request)
     {
         $request->validate([
@@ -35,7 +54,7 @@ class AuthController extends Controller
             Candidate::create([
                 'user_id' => $user->id,
             ]);
-
+            event(new WelcomeMailEvent($user));
             DB::commit();
 
             return response()->json([
@@ -97,6 +116,37 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Login successful',
+            'token'   => $token,
+            'user'    => [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'role_id' => $user->role_id,
+            ],
+        ], 200);
+    }
+
     public function companyRegister(RegisterCompanyRequest $request)
     {
         $request->validated();
@@ -127,6 +177,7 @@ class AuthController extends Controller
                 'phone'      => $request->phone,
                 'status'     => 0,
             ]);
+            EmailConfirmationJob::dispatch($user);
             DB::commit();
             return response()->json([
                 'message' => 'Company registered request successfully!',
@@ -194,4 +245,13 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function verificationAlreadyDone()
+    {
+        return view('mail.company-verification-done');
+    }
+
+    public function verificationSuccess()
+    {
+        return view('mail.verification-success');
+    }
 }
