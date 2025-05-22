@@ -1,8 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Events\WelcomeMail;
-use App\Events\WelcomeMailEvent;
 use App\Http\Requests\RegisterCompanyRequest;
 use App\Jobs\EmailConfirmationJob;
 use App\Models\Candidate;
@@ -43,18 +41,18 @@ class AuthController extends Controller
         DB::beginTransaction();
 
         try {
-            $candidateRole = Role::where('name', 'Candidate')->first();
-            $user          = User::create([
+            // $candidateRole = Role::where('name', 'Candidate')->first();
+            $user = Candidate::create([
                 'name'     => $request->full_name,
                 'email'    => $request->email,
                 'password' => Hash::make($request->password),
-                'role_id'  => $candidateRole->id,
+                // 'role_id'  => $candidateRole->id,
             ]);
 
-            Candidate::create([
-                'user_id' => $user->id,
-            ]);
-            event(new WelcomeMailEvent($user));
+            // Candidate::create([
+            //     'user_id' => $user->id,
+            // ]);
+            // event(new WelcomeMailEvent($user));
             DB::commit();
 
             return response()->json([
@@ -78,42 +76,23 @@ class AuthController extends Controller
     {
         $request->validate([
             'email'    => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $candidate = Candidate::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Invalid credentials',
-            ], 401);
+        if (! $candidate || ! Hash::check($request->password, $candidate->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $candidate = Candidate::where('user_id', $user->id)->first();
-
-        if (! $candidate) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Candidate record not found for this user',
-            ], 404);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Create token using correct guard
+        $token = $candidate->createToken('candidate-api-token')->plainTextToken;
 
         return response()->json([
-            'status'  => true,
             'message' => 'Login successful',
             'token'   => $token,
-            'user'    => [
-                'id'           => $user->id,
-                'name'         => $user->name,
-                'email'        => $user->email,
-                'role_id'      => $user->role_id,
-                'candidate_id' => $candidate->id,
-                'image'        => $candidate->image ? asset('storage/' . $candidate->image) : null,
-            ],
-        ], 200);
+            'user'    => $candidate,
+        ]);
     }
 
     public function adminLogin(Request $request)
@@ -253,5 +232,12 @@ class AuthController extends Controller
     public function verificationSuccess()
     {
         return view('mail.verification-success');
+    }
+
+    public function adminDetails()
+    {
+        $admin = User::where('id', auth()->id())->first();
+        dd($admin);
+        return $admin;
     }
 }

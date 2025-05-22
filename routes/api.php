@@ -33,8 +33,12 @@ Route::get('verify-company/{user}', [AuthController::class, 'verify'])->name('co
 Route::get('verification-success', [AuthController::class, 'verificationSuccess'])->name('verification.success');
 Route::get('verification-already-done', [AuthController::class, 'verificationAlreadyDone'])->name('verification.already.done');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:candidate-sanctum')->group(function () {
     Route::get('candidate/profile', [CandidateController::class, 'profile']);
     Route::apiResource('candidate', CandidateController::class);
-    Route::apiResource('category', CategoryController::class);
+    // Route::apiResource('category', CategoryController::class);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/admin-details', [AuthController::class, 'adminDetails']);
 });

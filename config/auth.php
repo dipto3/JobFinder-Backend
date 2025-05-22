@@ -13,8 +13,8 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => 'web',
+    'defaults'         => [
+        'guard'     => 'web',
         'passwords' => 'users',
     ],
 
@@ -35,10 +35,23 @@ return [
     |
     */
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
+    'guards'           => [
+        'web'               => [
+            'driver'   => 'session',
             'provider' => 'users',
+        ],
+        'candidate'         => [
+            'driver'   => 'session',
+            'provider' => 'candidates',
+        ],
+        'api'               => [
+            'driver'   => 'sanctum',
+            'provider' => 'users',
+        ],
+
+        'candidate-sanctum' => [
+            'driver'   => 'sanctum',
+            'provider' => 'candidates',
         ],
     ],
 
@@ -59,10 +72,14 @@ return [
     |
     */
 
-    'providers' => [
-        'users' => [
+    'providers'        => [
+        'users'      => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model'  => App\Models\User::class,
+        ],
+        'candidates' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\Candidate::class,
         ],
 
         // 'users' => [
@@ -90,11 +107,18 @@ return [
     |
     */
 
-    'passwords' => [
-        'users' => [
+    'passwords'        => [
+        'users'     => [
             'provider' => 'users',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
+            'table'    => 'password_reset_tokens',
+            'expire'   => 60,
+            'throttle' => 60,
+        ],
+
+        'candidate' => [
+            'provider' => 'candidates',
+            'table'    => 'password_reset_tokens',
+            'expire'   => 60,
             'throttle' => 60,
         ],
     ],
